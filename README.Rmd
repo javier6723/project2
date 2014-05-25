@@ -1,0 +1,98 @@
+Getting and Cleaning Data Course Project
+========================================================
+# Human Activity Recognition Using Smartphones Tidy Dataset [1]
+This script was made in R  version 3.1.0[2] on linux-ubuntu 12.04 LTS.
+The dataset gotten using this script was the result of processing the data colection "Human Activity Recognition Using Smartphones Dataset"[1] in which the experiment was carried out with a group of 30 volunteers aged between 19-48 years, each one performing 6 activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) while they were wearing a smartphone (Samsung Galaxy S II) on the waist. 
+the steps followed in the steps were:
+* Read the features into R to set the names on the variables.
+* Create a vector variable called names which contains the features.
+* Turn the features in the variable names to lower case and remove underscores, hyphens, commas, dots and parenthesis and then to set self-descriptives names.
+* Read the raw data, first the test data files and then the train data files, in this case the X_train and X_test files the column names taken were those stored in the variable called "names".
+* Merge the train and test datasets each The features files (X_test and X_train) in a new variable called X_all and the activity files (y_test and y_train) in another variable called Y_all as well as the subject files (subject_test and subject_train) by row.
+* Read the activity names into R from the activity_babels.txt file and stored in a vector variable called "labels".
+* Transform the activity in the data frame Y_all in a factor variable with the labels save in the variable "labels".
+* Merge the features, activities and subject data frames into a single data frame called human_activity_recogn_tidy_data by columns.
+* Turn subjects as a factor variable.
+* Extracts only the measurements on the mean and standard deviation for each measurement to obtain the first tidy dataset.
+* Create the final tidy data set with the average of each variable for each activity and each subject.
+* write the final tidy data set in a file called "tidy_data.txt"
+
+## Tidy data generating code
+```{r}
+#GETTING AND CLEANING DATA ASSIGNMENT
+# R VERSION 3.1.0
+#OPERATIVE SYSTEM USED UBUNTU 12.04
+
+#READING FEATURES INTO R TO SET DESCRITIVE NAMES ON THE VARIABLES
+features<-read.table("./UCI HAR Dataset/features.txt")
+#saving the features in a vector variable to name the columns
+names1<-as.vector(features[,2])
+#turning capital letters to lower case letters in the names
+names<-tolower(names1); rm(names1)
+#removing no letters characters("-","(",")",".",","))
+#and setting self descriptive names
+names<-gsub("-","",names)
+names<-gsub("\\(","",names)
+names<-gsub("\\)","",names)
+names<-gsub("\\.","",names)
+names<-gsub(",","",names)
+names<-gsub("acc","acceleration",names)
+names<-gsub("gyro","gyroscope",names)
+names<-gsub("tb","timeb",names)
+names<-gsub("tg","timeg",names)
+names<-gsub("fb","frequencyb",names)
+
+#READING THE ROW DATA SETS
+#reading test data sets into R
+subject_test<-read.table("./UCI HAR Dataset/test/subject_test.txt",col.names=c("subject"))
+#reading X_test with the names of the features using the variable called names
+X_test<-read.table("./UCI HAR Dataset/test/X_test.txt",col.names=names)
+Y_test<-read.table("./UCI HAR Dataset/test/y_test.txt",col.names=c("activity"))
+
+
+#reading train data sets into R
+subject_train<-read.table("./UCI HAR Dataset/train/subject_train.txt",col.names=c("subject"))
+#reading X_train with the names of the features using the variable called names
+X_train<-read.table("./UCI HAR Dataset/train/X_train.txt",col.names=names)
+Y_train<-read.table("./UCI HAR Dataset/train/y_train.txt",col.names=c("activity"))
+
+
+#MERGING THE TEST AND TRAINIG SETS INTO A SINGLE DATA SET
+#merging the test and train datasets by row
+X_all<-rbind(X_test,X_train)
+Y_all<-rbind(Y_test,Y_train)
+subject<-rbind(subject_test,subject_train)
+
+#reading tha activity names into R
+activity_labels<-read.table("./UCI HAR Dataset/activity_labels.txt")
+#saving the activity labels in a vector variable to name the columns
+labels<-as.character(activity_labels[,2])
+
+#setting descriptives names to the activity labels and turning the variable 
+# into a factor variable
+Y_all$activity<-factor(Y_all$activity,labels=labels)
+
+
+human_activity_recogn_tidy_data<-cbind(subject,Y_all,X_all)
+
+#turning subjects as a factor variables
+human_activity_recogn_tidy_data$subject<-as.factor(human_activity_recogn_tidy_data$subject)
+
+#EXTRACTING ONLY THE MEASUREMENTS ON THE MEAN AND STANDARD DEVIATION FOR EACH MEASUREMENT 
+names2<-names(human_activity_recogn_tidy_data)
+subset<-grep("subject|activity|mean|std",names2,value=T)
+
+#FIRST TIDY DATA SET
+human_activity_recogn_tidy_data<-human_activity_recogn_tidy_data[subset[1:length(subset)]]
+rm(names2)
+
+#CREATING THE FINAL TIDY DATA SET WITH THE AVERAGE OF EACH VARIABLE FOR EACH ACTIVITY AND EACH SUBJECT
+human_activity_recogn_tidy_data2<-aggregate(human_activity_recogn_tidy_data[,3:88],by=human_activity_recogn_tidy_data[,1:2],mean)
+
+#WRITING THE DATASET IN THE CURRRENT WORK DIRECTORY
+write.table(human_activity_recogn_tidy_data2,"tidy_data.txt",col.names=T)
+```
+[1] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012.
+
+[2] R Core Team (2014). R: A language and environment for statistical computing. R
+  Foundation for Statistical Computing, Vienna, Austria. URL http://www.R-project.org/
