@@ -68,5 +68,8 @@ rm(names2)
 #CREATING THE FINAL TIDY DATA SET WITH THE AVERAGE OF EACH VARIABLE FOR EACH ACTIVITY AND EACH SUBJECT
 human_activity_recogn_tidy_data2<-aggregate(human_activity_recogn_tidy_data[,3:88],by=human_activity_recogn_tidy_data[,1:2],mean)
 
+#WRITING THE DATASET IN THE CURRRENT WORK DIRECTORY FIRST DATASET
+write.table(human_activity_recogn_tidy_data,"tidy_data_1.txt",col.names=T)
+
 #WRITING THE DATASET IN THE CURRRENT WORK DIRECTORY
 write.table(human_activity_recogn_tidy_data2,"tidy_data.txt",col.names=T)
